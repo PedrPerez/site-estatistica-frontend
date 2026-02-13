@@ -1,17 +1,15 @@
 import logo from './logo.svg';
 import './App.css';
+import HomePage from "./pages/HomePage";
+import LogIn from "./pages/LogIn";
+import InserirEmail from "./pages/InserirEmail"
+import InserirImpresso from "./pages/InserirImpresso"
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-      </header>
-    </div>
-  );
+  //return <LogIn />;
+  //return <HomePage />;
+  //return <InserirEmail />;
+  return <InserirImpresso />;
 }
 
 export default App;

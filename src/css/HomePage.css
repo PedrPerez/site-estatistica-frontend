@@ -1,0 +1,53 @@
+/* HomePage.css */
+
+.menu-container {
+  display: flex;
+  gap: 20px;
+  padding: 40px;
+}
+
+.menu-box {
+  width: 200px;
+  border: 1px solid #999;
+  background: #eaeaea;
+  /* Transição suave para quando o menu abrir */
+  height: fit-content;
+}
+
+.menu-title {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #ddd;
+  border: none;
+  text-align: left;
+  display: block;
+}
+
+.menu-title:hover {
+  background: #d0d0d0;
+}
+
+.menu-content {
+  padding: 10px;
+  background: #f5f5f5;
+  border-top: 1px solid #ccc;
+}
+
+.option {
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.option:hover {
+  background: #ddd;
+}
+
+/* Estilo opcional para quando o menu estiver aberto */
+.menu-box.open {
+  border-color: #666;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
