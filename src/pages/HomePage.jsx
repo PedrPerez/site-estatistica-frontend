@@ -9,33 +9,47 @@ export default function HomePage() {
   };
 
   return (
-    <div className="menu-container">
-      <MenuBox
-        title="Questionário"
-        isOpen={openMenu === "questionario"}
-        onClick={() => handleClick("questionario")}
-      >
-        <Option>Registar</Option>
-        <Option>Listar</Option>
-      </MenuBox>
+    <div className="page-wrapper">
+      {/* Cabeçalho */}
+      <header className="main-header">
+        <div className="logo-section">Logo</div>
+        <div className="title-section">SANTA CASA DA MISERICÓRDIA DE ESPOSENDE</div>
+        <div className="user-section">
+          <span>*Utilizador*</span>
+          <button className="logout-btn">Terminar Sessão</button>
+        </div>
+      </header>
 
-      <MenuBox
-        title="Impressos"
-        isOpen={openMenu === "impressos"}
-        onClick={() => handleClick("impressos")}
-      >
-        <Option>Registar</Option>
-        <Option>Listar</Option>
-      </MenuBox>
+      <hr className="divider" />
+      
+      <div className="menu-container">
+        <MenuBox
+          title="Questionário"
+          isOpen={openMenu === "questionario"}
+          onClick={() => handleClick("questionario")}
+        >
+          <Option>Registar</Option>
+          <Option>Listar</Option>
+        </MenuBox>
 
-      <MenuBox
-        title="Emails"
-        isOpen={openMenu === "emails"}
-        onClick={() => handleClick("emails")}
-      >
-        <Option>Registar</Option>
-        <Option>Listar</Option>
-      </MenuBox>
+        <MenuBox
+          title="Impressos"
+          isOpen={openMenu === "impressos"}
+          onClick={() => handleClick("impressos")}
+        >
+          <Option>Registar</Option>
+          <Option>Listar</Option>
+        </MenuBox>
+
+        <MenuBox
+          title="Emails"
+          isOpen={openMenu === "emails"}
+          onClick={() => handleClick("emails")}
+        >
+          <Option>Registar</Option>
+          <Option>Listar</Option>
+        </MenuBox>
+      </div>
     </div>
   );
 }
