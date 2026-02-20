@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../css/ListarImpresso.css';
+import '../css/ListarQuestionario.css';
 
 export default function ListarQuestionario() {
 
