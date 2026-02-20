@@ -17,7 +17,7 @@ function App() {
   //return <InserirQuestionario />;
   //return <ListarEmail />;
   //return <ListarImpresso />;
-  //return <ListarQuestionario />;
+  return <ListarQuestionario />;
 }
 
 export default App;

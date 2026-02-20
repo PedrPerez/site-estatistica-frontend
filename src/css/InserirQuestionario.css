@@ -233,3 +233,21 @@ textarea {
 .btn-cancel:hover {
   filter: brightness(0.9);
 }
+
+/* Adiciona isto ao final do teu ficheiro CSS */
+
+.status-msg {
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+/* Garante que o conteúdo não fique "colado" nas bordas em ecrãs pequenos */
+.main-content form {
+    width: 100%;
+}
+
+/* Melhorar o aspeto do select para condizer com o teu estilo */
+select {
+    cursor: pointer;
+    background-color: #fff;
+}
