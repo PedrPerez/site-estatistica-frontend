@@ -14,7 +14,7 @@ function App() {
   //return <HomePage />;
   //return <InserirEmail />;
   //return <InserirImpresso />;
-  //return <InserirQuestionario />;
+  return <InserirQuestionario />;
   //return <ListarEmail />;
   //return <ListarImpresso />;
   //return <ListarQuestionario />;
