@@ -86,8 +86,8 @@ export default function InserirQuestionario() {
 
         {/* Navegação */}
         <nav className="nav-links">
-          <a href="#" className="nav-link">← Pagina Principal</a>
-          <a href="#" className="nav-link">Listar Questionários →</a>
+          <a href="/" className="nav-link">← Pagina Principal</a>
+          <a href="/listar-questionario" className="nav-link">Listar Questionário →</a>
         </nav>
 
         <hr className="divider" />

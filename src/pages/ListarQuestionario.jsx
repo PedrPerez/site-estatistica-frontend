@@ -93,8 +93,8 @@ export default function ListarQuestionarios() {
         </header>
 
         <nav className="nav-links">
-          <a href="#" className="nav-link">← Pagina Principal</a>
-          <a href="#" className="nav-link">Listar Questionários →</a>
+          <a href="/" className="nav-link">← Pagina Principal</a>
+          <a href="/inserir-questionario" className="nav-link">Registar Questionário →</a>
         </nav>
 
         <hr className="divider" />
