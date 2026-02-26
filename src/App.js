@@ -19,7 +19,7 @@ function App() {
         <Route path="/" element={<InserirQuestionario />} />
         <Route path="/listar-questionario" element={<ListarQuestionario />} />
       </Routes>
-    </BrowserRouter>
+    </BrowserRouter> 
   );
 }
 

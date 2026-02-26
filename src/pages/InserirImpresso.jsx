@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../css/InserirImpresso.css';
 
 export default function InserirImpresso() {
+  const [unidades, setUnidades] = useState([]);
+  const [tipos, setTipos] = useState([]);
   const [formData, setFormData] = useState({
     nome: '',
-    data: '',
+    data: new Date().toISOString().split('T')[0], // Data de hoje por defeito
     morada: '',
-    cp1: '',
-    cp2: '',
     tipo: '',
     unidade: '',
     email: '',
@@ -17,24 +17,74 @@ export default function InserirImpresso() {
   });
 
   const [error, setError] = useState('');
-  
+  const [success, setSuccess] = useState('');
+
+  // 1. Carregar Unidades e Tipos ao iniciar a página
+  useEffect(() => {
+    // Carregar Unidades
+    fetch('http://localhost/API/obterUnidade.php')
+      .then(res => res.json())
+      .then(data => setUnidades(data))
+      .catch(err => console.error("Erro ao carregar unidades:", err));
+
+    // Carregar Tipos (Substituir pelo teu ficheiro de tipos)
+    fetch('http://localhost/API/obterTipo.php')
+      .then(res => res.json())
+      .then(data => setTipos(data))
+      .catch(err => console.error("Erro ao carregar tipos:", err));
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
 
-    const { nome, morada, unidade, email, data, cp1, cp2, tipo, tel, descritivo, resolucao } = formData;
-
-    if (!tipo || !unidade || !email || !data || !descritivo || !resolucao || !nome || !morada || !tel || !cp1 || !cp2) {
-      setError('Campos por preencher.');
+    // Validação simples
+    const { nome, morada, unidade, email, data, tipo, tel, descritivo, resolucao } = formData;
+    if (!tipo || !unidade || !nome || !descritivo) {
+      setError('Por favor, preencha os campos obrigatórios (Nome, Unidade, Tipo e Descritivo).');
       return;
     }
 
-    setError('');
-    console.log('Dados submetidos:', formData);
+    try {
+      const response = await fetch('http://localhost/API/salvarImpresso.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          ...formData,
+          utilizador_registo: 'Admin' // Poderia vir de um contexto de login
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'sucesso') {
+        setSuccess('Registo inserido com sucesso!');
+        // Limpar formulário após sucesso
+        setFormData({
+          nome: '',
+          data: new Date().toISOString().split('T')[0],
+          morada: '',
+          tipo: '',
+          unidade: '',
+          email: '',
+          tel: '',
+          descritivo: '',
+          resolucao: ''
+        });
+      } else {
+        setError(result.mensagem || 'Erro ao inserir registo.');
+      }
+    } catch (err) {
+      setError('Não foi possível contactar o servidor.');
+    }
   };
 
   return (
@@ -51,8 +101,8 @@ export default function InserirImpresso() {
 
       {/* Navegação */}
       <nav className="nav-links">
-        <a href="#" className="nav-link">← Pagina Principal</a>
-        <a href="#" className="nav-link">Listar Impressos →</a>
+        <a href="/" className="nav-link">← Pagina Principal</a>
+        <a href="/listar" className="nav-link">Listar Impressos →</a>
       </nav>
 
       <hr className="divider" />
@@ -62,6 +112,10 @@ export default function InserirImpresso() {
         <div className="form-card">
           <form onSubmit={handleSubmit}>
             
+            {/* Mensagens de Feedback */}
+            {error && <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</div>}
+            {success && <div className="success-message" style={{color: 'green', marginBottom: '10px'}}>{success}</div>}
+
             {/* Secção Identificação */}
             <section className="section-box">
               <h2 className="section-title">Identificação</h2>
@@ -69,56 +123,19 @@ export default function InserirImpresso() {
               <div className="row">
                 <div className="input-group grow">
                   <label>Nome :</label>
-                  <input 
-                    type="text" 
-                    name="nome"
-                    value={formData.nome} 
-                    onChange={handleChange} 
-                  />
+                  <input type="text" name="nome" value={formData.nome} onChange={handleChange} />
                 </div>
 
                 <div className="input-group">
                   <label>Data :</label>
-                  <input 
-                    type="text" 
-                    name="data" 
-                    value={formData.data} 
-                  />
+                  <input type="date" name="data" value={formData.data} onChange={handleChange} />
                 </div>
               </div>
 
               <div className="row" style={{ paddingTop: 0 }}>
                 <div className="input-group grow">
                   <label>Morada :</label>
-                  <input 
-                    type="text" 
-                    name="morada" 
-                    value={formData.morada} 
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="row" style={{ paddingTop: 0 }}>
-                <div className="input-group">
-                  <label>Codigo Postal :</label>
-                  <div className="cp-container">
-                    <input 
-                      type="text" 
-                      name="cp1" 
-                      maxLength="4" 
-                      className="cp-field cp-small" 
-                      placeholder="0000"
-                    />
-                    <span className="cp-separator">-</span>
-                    <input 
-                      type="text" 
-                      name="cp2" 
-                      maxLength="3" 
-                      className="cp-field cp-extra-small" 
-                      placeholder="000"
-                    />
-                  </div>
+                  <input type="text" name="morada" value={formData.morada} onChange={handleChange} />
                 </div>
               </div>
             </section>
@@ -129,22 +146,20 @@ export default function InserirImpresso() {
                 <div className="input-group">
                   <label>Tipo:</label>
                   <select name="tipo" value={formData.tipo} onChange={handleChange}>
-                    <option value="">-</option>
-                    <option value="elogio">Agradecimento/Elogio</option>
-                    <option value="ajuda">Pedido de ajuda</option>
-                    <option value="reclamacao">Reclamação</option>
-                    <option value="sugestao">Sugestão</option>
+                    <option value="">Seleccione o Tipo</option>
+                    {tipos.map(t => (
+                      <option key={t.id} value={t.id}>{t.descricao}</option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="input-group">
                   <label>Unidade:</label>
                   <select name="unidade" value={formData.unidade} onChange={handleChange}>
-                    <option value="">-</option>
-                    <option value="convalescenca">Convalescença</option>
-                    <option value="media">Média Duração e Reabilitação</option>
-                    <option value="cirurgia">Cirurgia</option>
-                    <option value="outros">Outros</option>
+                    <option value="">Seleccione a Unidade</option>
+                    {unidades.map(u => (
+                      <option key={u.cod_unidade} value={u.cod_unidade}>{u.descricao}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -155,21 +170,11 @@ export default function InserirImpresso() {
               <div className="row">
                 <div className="input-group grow">
                   <label>Email :</label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    value={formData.email} 
-                    onChange={handleChange} 
-                  />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} />
                 </div>
                 <div className="input-group">
                   <label>Tel :</label>
-                  <input 
-                    type="text" 
-                    name="tel" 
-                    value={formData.tel} 
-                    onChange={handleChange} 
-                  />
+                  <input type="text" name="tel" value={formData.tel} onChange={handleChange} />
                 </div>
               </div>
             </section>
@@ -178,11 +183,7 @@ export default function InserirImpresso() {
             <section className="section-box no-padding">
               <h2 className="section-title gray-bg">Descritivo:</h2>
               <div className="textarea-container">
-                <textarea 
-                  name="descritivo" 
-                  value={formData.descritivo} 
-                  onChange={handleChange} 
-                />
+                <textarea name="descritivo" value={formData.descritivo} onChange={handleChange} />
               </div>
             </section>
 
@@ -190,21 +191,14 @@ export default function InserirImpresso() {
             <section className="section-box no-padding">
               <h2 className="section-title gray-bg">Resolução:</h2>
               <div className="textarea-container">
-                <textarea 
-                  name="resolucao" 
-                  value={formData.resolucao} 
-                  onChange={handleChange} 
-                />
+                <textarea name="resolucao" value={formData.resolucao} onChange={handleChange} />
               </div>
             </section>
-
-            {/* Mensagem de erro */}
-            {error && <div className="error-message">{error}</div>}
 
             {/* Botões */}
             <div className="button-group">
               <button type="submit" className="btn-submit">Submeter</button>
-              <button type="button" className="btn-cancel">Cancelar</button>
+              <button type="button" className="btn-cancel" onClick={() => setFormData({})}>Cancelar</button>
             </div>
 
           </form>
