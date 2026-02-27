@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../css/ListarImpresso.css';
 
 export default function ListarImpresso() {
-
+  const [registos, setRegistos] = useState([]);
+  const [unidades, setUnidades] = useState([]);
+  const [tipos, setTipos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   const [formData, setFormData] = useState({
     unidade: '',
     data: '',
@@ -10,6 +14,23 @@ export default function ListarImpresso() {
   });
 
   const [expandedId, setExpandedId] = useState(null);
+
+  // Carregar dados da API
+  useEffect(() => {
+    Promise.all([
+      fetch('http://localhost/API/obterImpresso.php').then(res => res.json()),
+      fetch('http://localhost/API/obterUnidade.php').then(res => res.json()),
+      fetch('http://localhost/API/obterTipoMensagem.php').then(res => res.json())
+    ]).then(([dataRegistos, dataUnidades, dataTipos]) => {
+      setRegistos(dataRegistos);
+      setUnidades(dataUnidades);
+      setTipos(dataTipos);
+      setLoading(false);
+    }).catch(err => {
+      console.error("Erro ao carregar dados:", err);
+      setLoading(false);
+    });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,62 +45,23 @@ export default function ListarImpresso() {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  // Lista completa de impressos
-  const todosOsResultados = [
-    { 
-      id: 1, 
-      unidade: 'convalescenca', 
-      data: '01/01/2000', 
-      tipo: 'elogio',
-      descritivo: 'Poderiam melhorar o tempo de resposta.',
-      resolucao: 'Melhorado'
-    },
-    { 
-      id: 2, 
-      unidade: 'cuidados-paliativos', 
-      data: '15/05/2022', 
-      tipo: 'sugestao',
-      descritivo: 'Poderiam melhorar o tempo de resposta.',
-      resolucao: 'Melhorado'
-    },
-
-  ];
-
-  // Função para mostrar nomes bonitos
-  const formatarUnidade = (unidade) => {
-    switch(unidade) {
-      case 'convalescenca': return 'Convalescença';
-      case 'cuidados-paliativos': return 'Cuidados Paliativos';
-      default: return unidade;
-    }
-  };
-
-  const formatarTipo = (tipo) => {
-    switch(tipo) {
-      case 'elogio': return 'Agradecimento/Elogio';
-      case 'sugestao': return 'Sugestão';
-      case 'reclamacao': return 'Reclamação';
-      default: return tipo;
-    }
-  };
-
-  // Filtragem
-  const resultadosFiltrados = todosOsResultados.filter(item => {
-    const correspondeUnidade = formData.unidade === '' || item.unidade === formData.unidade;
-    const correspondeTipo = formData.tipo === '' || item.tipo === formData.tipo;
+  // Lógica de Filtragem Dinâmica
+  const resultadosFiltrados = registos.filter(item => {
+    const correspondeUnidade = formData.unidade === '' || String(item.unidade_id) === formData.unidade;
+    const correspondeTipo = formData.tipo === '' || String(item.tipo_id) === formData.tipo;
+    // Ajuste de data para comparar YYYY-MM-DD
     const correspondeData = formData.data === '' || item.data.includes(formData.data);
 
     return correspondeUnidade && correspondeTipo && correspondeData;
   });
 
+  if (loading) return <div style={{textAlign:'center', padding:'50px'}}>A carregar registos...</div>;
+
   return (
     <div className="page-wrapper">
-
       <header className="main-header">
         <div className="logo-section">Logo</div>
-        <div className="title-section">
-          SANTA CASA DA MISERICÓRDIA DE ESPOSENDE
-        </div>
+        <div className="title-section">SANTA CASA DA MISERICÓRDIA DE ESPOSENDE</div>
         <div className="user-section">
           <span>*Utilizador*</span>
           <button className="logout-btn">Terminar Sessão</button>
@@ -87,8 +69,8 @@ export default function ListarImpresso() {
       </header>
 
       <nav className="nav-links">
-        <a href="#" className="nav-link">← Pagina Principal</a>
-        <a href="#" className="nav-link">Inserir Impresso →</a>
+        <a href="/" className="nav-link">← Pagina Principal</a>
+        <a href="/inserir" className="nav-link">Inserir Impresso →</a>
       </nav>
 
       <hr className="divider" />
@@ -96,7 +78,7 @@ export default function ListarImpresso() {
       <div className="main-content" style={{ flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ width: '95%', maxWidth: '1200px' }}>
 
-          {/* FILTROS */}
+          {/* FILTROS DINÂMICOS */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '5px' }}>
             <span style={{ fontSize: '1.8rem' }}>Filtros:</span>
             <button onClick={limparFiltros} className="logout-btn" style={{ textDecoration: 'underline' }}>
@@ -108,93 +90,65 @@ export default function ListarImpresso() {
             <div className="row">
               <div className="input-group">
                 <label>Unidade :</label>
-                  <select name="unidade" value={formData.unidade} onChange={handleChange}>
-                    <option value="">-</option>
-                    <option value="convalescenca">Convalescença</option>
-                    <option value="media">Média Duração e Reabilitação</option>
-                    <option value="cirurgia">Cirurgia</option>
-                    <option value="outros">Outros</option>
-                  </select>
+                <select name="unidade" value={formData.unidade} onChange={handleChange}>
+                  <option value="">Todas as Unidades</option>
+                  {unidades.map(u => (
+                    <option key={u.cod_unidade} value={u.cod_unidade}>{u.descricao}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="input-group">
-                  <label>Data:</label>
-                  <input
-                    type="date"
-                    name="data"
-                    value={formData.data}
-                    onChange={handleChange}
-                  />
-                </div>
+                <label>Data:</label>
+                <input type="date" name="data" value={formData.data} onChange={handleChange} />
+              </div>
             </div>
 
             <div className="row" style={{ paddingTop: 0 }}>
               <div className="input-group">
                 <label>Tipo :</label>
-                  <select name="tipo" value={formData.tipo} onChange={handleChange}>
-                    <option value="">-</option>
-                    <option value="elogio">Agradecimento/Elogio</option>
-                    <option value="ajuda">Pedido de ajuda</option>
-                    <option value="reclamacao">Reclamação</option>
-                    <option value="sugestao">Sugestão</option>
-                  </select>
+                <select name="tipo" value={formData.tipo} onChange={handleChange}>
+                  <option value="">Todos os Tipos</option>
+                  {tipos.map(t => (
+                    <option key={t.id} value={t.id}>{t.descricao}</option>
+                  ))}
+                </select>
               </div>
-              
             </div>
           </section>
 
-          {/* TOTAL */}
           <h2 style={{ fontSize: '1.6rem', fontWeight: 'normal', marginBottom: '20px' }}>
             Total de Resultados: {resultadosFiltrados.length}
           </h2>
 
-          {/* LISTA */}
+          {/* LISTA DE RESULTADOS REAIS */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {resultadosFiltrados.length > 0 ? (
               resultadosFiltrados.map((item) => (
                 <div key={item.id} className="section-box">
-                  {/* HEADER */}
                   <div 
                     onClick={() => toggleExpand(item.id)}
-                    style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      padding: '15px 20px', 
-                      fontSize: '1.6rem',
-                      cursor: 'pointer'
-                    }}
+                    style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 20px', fontSize: '1.6rem', cursor: 'pointer' }}
                   >
                     <span>
-                      {item.id}. Unidade: {formatarUnidade(item.unidade)} 
-                      {" "}Data: {item.data}
+                      <strong>#{item.id}</strong> | Unidade: {item.unidade_nome} | Data: {new Date(item.data).toLocaleDateString('pt-PT')}
                     </span>
                     <span style={{ fontWeight: 'bold' }}>
                       {expandedId === item.id ? '▲' : '▼'}
                     </span>
                   </div>
 
-                  {/* CONTEÚDO EXPANDIDO */}
                   {expandedId === item.id && (
-                    <div style={{ padding: '20px', borderTop: '1px solid #ccc' }}>
-                      <p><strong>Tipo:</strong> {formatarTipo(item.tipo)}</p>
+                    <div style={{ padding: '20px', borderTop: '1px solid #ccc', backgroundColor: '#f9f9f9' }}>
+                      <p><strong>Tipo de Mensagem:</strong> {item.tipo_nome}</p>
                       <div style={{ marginTop: '15px' }}>
                         <p><strong>Descritivo:</strong></p>
-                        <div style={{
-                          border: '1px solid #999',
-                          padding: '15px',
-                          minHeight: '100px',
-                          marginTop: '5px'
-                        }}>
-                          {item.descritivo}
+                        <div style={{ border: '1px solid #999', padding: '15px', minHeight: '80px', marginTop: '5px', backgroundColor: '#fff' }}>
+                          {item.descritivo || <i>Sem descrição.</i>}
                         </div>
-                        <p><strong>Resolução:</strong></p>
-                        <div style={{
-                          border: '1px solid #999',
-                          padding: '15px',
-                          minHeight: '100px',
-                          marginTop: '5px'
-                        }}>
-                          {item.resolucao}
+                        <p style={{ marginTop: '15px' }}><strong>Resolução:</strong></p>
+                        <div style={{ border: '1px solid #999', padding: '15px', minHeight: '80px', marginTop: '5px', backgroundColor: '#fff' }}>
+                          {item.resolucao || <i>Pendente de resolução.</i>}
                         </div>
                       </div>
                     </div>
@@ -203,7 +157,7 @@ export default function ListarImpresso() {
               ))
             ) : (
               <p style={{ textAlign: 'center', fontSize: '1.2rem', marginTop: '20px' }}>
-                Nenhum resultado encontrado para os filtros aplicados.
+                Nenhum registo encontrado.
               </p>
             )}
           </div>

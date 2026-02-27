@@ -28,7 +28,7 @@ export default function InserirImpresso() {
       .catch(err => console.error("Erro ao carregar unidades:", err));
 
     // Carregar Tipos (Substituir pelo teu ficheiro de tipos)
-    fetch('http://localhost/API/obterTipo.php')
+    fetch('http://localhost/API/obterTipoMensagem.php')
       .then(res => res.json())
       .then(data => setTipos(data))
       .catch(err => console.error("Erro ao carregar tipos:", err));

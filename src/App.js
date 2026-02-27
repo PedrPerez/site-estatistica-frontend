@@ -9,18 +9,14 @@ import ListarImpresso from './pages/ListarImpresso';
 import ListarQuestionario from './pages/ListarQuestionario';
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<ListarQuestionario />} />
-        <Route path="/inserir-questionario" element={<InserirQuestionario />} />
-      </Routes>
-      <Routes>
-        <Route path="/" element={<InserirQuestionario />} />
-        <Route path="/listar-questionario" element={<ListarQuestionario />} />
-      </Routes>
-    </BrowserRouter> 
-  );
+  //return <LogIn />;
+  //return <HomePage />;
+  return <InserirEmail />;
+  //return <InserirImpresso />;
+  //return <InserirQuestionario />;
+  //return <ListarEmail />;
+  //return <ListarImpresso />;
+  //return <ListarQuestionario />;
 }
 
 export default App;
