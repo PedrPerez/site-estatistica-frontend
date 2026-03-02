@@ -11,10 +11,10 @@ import ListarQuestionario from './pages/ListarQuestionario';
 function App() {
   //return <LogIn />;
   //return <HomePage />;
-  return <InserirEmail />;
+  //return <InserirEmail />;
   //return <InserirImpresso />;
   //return <InserirQuestionario />;
-  //return <ListarEmail />;
+  return <ListarEmail />;
   //return <ListarImpresso />;
   //return <ListarQuestionario />;
 }
